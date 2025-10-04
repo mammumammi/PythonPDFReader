@@ -3,15 +3,17 @@ import pdfplumber
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
-
+import json
 # ---------------- Google Sheets Setup ----------------
-scope = ["https://spreadsheets.google.com/feeds",
-         "https://www.googleapis.com/auth/drive"]
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+# Read credentials from environment variable
+creds_json = os.environ.get("GOOGLE_CREDENTIALS")
+creds_dict = json.loads(creds_json)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
 client = gspread.authorize(creds)
 sheet = client.open("Insurance PDF Reader").sheet1
-
 # ---------------- PDF Extraction ----------------
 def extract_text_from_box(page, left, top, right, bottom):
     """
